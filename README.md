@@ -1,13 +1,23 @@
-# Sample Hardhat Project
+# SolidAuth - Hardhat Project
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a Hardhat Ignition module that deploys that contract.
+This project contains the **SolidAuth** smart contract, developed using Hardhat. It includes the contract source code, tests, and deployment scripts.
 
-Try running some of the following tasks:
+## Setup
+
+Before running any commands, install the dependencies:
 
 ```shell
-npx hardhat help
+npm install --save-dev hardhat
+npm i typechain
+npm install --save ethers
+npm i @typechain/ethers-v5
+npm install --save-dev @nomiclabs/hardhat-ethers
+```
+
+## Compile & Run Tests
+
+```shell
+npx hardhat compile
+npx hardhat typechain
 npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat ignition deploy ./ignition/modules/Lock.ts
 ```
