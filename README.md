@@ -4,14 +4,20 @@ This project contains the **SolidAuth** smart contract, developed using Hardhat.
 
 ## Setup
 
-Before running any commands, install the dependencies:
+Before running any commands, clean the dependencies:
 
 ```shell
-npm install --save-dev hardhat
-npm i typechain
-npm install --save ethers
-npm i @typechain/ethers-v5
-npm install --save-dev @nomiclabs/hardhat-ethers
+npm cache clean --force
+rm -rf node_modules package-lock.json
+```
+
+Then install the correct dependencies:
+
+```shell
+npm install hardhat@2.17.1 --save-dev
+npm install ethers@5.7.2 --save-dev
+npm install ts-node typescript @types/node --save-dev
+npm install @nomicfoundation/hardhat-toolbox@2
 ```
 
 ## Compile & Run Tests
