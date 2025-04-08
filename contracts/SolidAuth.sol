@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 contract SolidAuth {
-    address public admin;
+    address admin;
 
     enum AccessMode { READ, WRITE, APPEND, CREATE, DELETE }
 
@@ -14,13 +14,17 @@ contract SolidAuth {
         bool delPermission; // Cambiato 'del' in 'delPermission' per evitare l'errore
     }
 
-    // Mappa WebID -> Risorsa -> Permessi
-    mapping(string => mapping(string => Permission)) private webIdPermissions;
+    // Mappatura WebID -> Indirizzo del wallet
+    mapping(string => address) private webIdToWallet;
 
-    event PermissionUpdated(string indexed webId, string indexed resource, Permission permission);
+    // Mappatura Indirizzo del wallet -> Risorsa -> Permessi
+    mapping(address => mapping(string => Permission)) private walletPermissions;
 
-    modifier onlyAdmin() {
-        require(msg.sender == admin, "Access denied: Admin only");
+    event WalletAssigned(string indexed webId, address indexed wallet);
+    event PermissionUpdated(address indexed wallet, string indexed resource, Permission permission);
+
+    modifier onlyAdminorOwner(address wallet) {
+        require(msg.sender == admin || msg.sender == wallet, "Access denied: Only admin or owner allowed");
         _;
     }
 
@@ -28,21 +32,29 @@ contract SolidAuth {
         admin = msg.sender;
     }
 
+    // Assegna un indirizzo wallet a un WebID
+    function assignWallet(string memory webId, address wallet) external onlyAdminorOwner(wallet) {
+        webIdToWallet[webId] = wallet;
+        emit WalletAssigned(webId, wallet);
+    }
+
+    // Imposta i permessi per un indirizzo di wallet
     function setPermissions(
-        string memory webId,
+        address wallet,
         string memory resource,
         bool read,
         bool write,
         bool append,
         bool create,
         bool delPermission
-    ) external onlyAdmin {
-        webIdPermissions[webId][resource] = Permission(read, write, append, create, delPermission);
-        emit PermissionUpdated(webId, resource, webIdPermissions[webId][resource]);
+    ) external onlyAdminorOwner(wallet) {
+        walletPermissions[wallet][resource] = Permission(read, write, append, create, delPermission);
+        emit PermissionUpdated(wallet, resource, walletPermissions[wallet][resource]);
     }
 
-    function isAuthorized(string memory webId, string memory resource, AccessMode mode) external view returns (bool) {
-        Permission storage perm = webIdPermissions[webId][resource];
+    // Controlla se un wallet è autorizzato per una determinata modalità
+    function isAuthorized(address wallet, string memory resource, AccessMode mode) external view returns (bool) {
+        Permission storage perm = walletPermissions[wallet][resource];
         if (mode == AccessMode.READ) return perm.read;
         if (mode == AccessMode.WRITE) return perm.write;
         if (mode == AccessMode.APPEND) return perm.append;
