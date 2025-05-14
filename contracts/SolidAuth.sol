@@ -13,7 +13,7 @@ contract SolidAuth {
         bool del;
     }
 
-    address admin; 
+    address public admin; 
 
     // Mapping WebID -> Wallet address
     mapping(string => address) webIdToWallet;
